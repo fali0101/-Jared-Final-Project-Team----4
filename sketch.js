@@ -1,11 +1,11 @@
-// # Perlin noise and randomness
-// # Mechanism: Perlin noise and randomness
-// # Pattern: subtle themed bits in home and Scratch.
-// # Function: complete quiet random details.
-// # Color: low-alpha details, not distracting.
+// # User input
+// # Mechanism: User input
+// # Pattern: buttons, keyboard color, mouse-follow eyes.
+// # Function: complete all controls and modal buttons.
+// # Color: consistent cream panels and dark text.
 // # PawPlay Modes
-const MECHANIC = 'noise';
-const BUILD_STEP = 5;
+const MECHANIC = 'full';
+const BUILD_STEP = 7;
 const USE_MENU = true;
 const USE_SCRATCH = true;
 const USE_BUBBLE = true;
@@ -356,14 +356,15 @@ function buildCatMarks(index) {
 
 function drawScratch() {
   drawScratchBackground();
-  drawQuietThemeBits('scratch');
+  if (BUILD_STEP >= 5) drawQuietThemeBits('scratch');
   drawTopBar('Scratch Studio', CAT_COLORS[selectedColor].name);
   updateScratchMarks();
   updateDebris();
   updateCurlBits();
   updateBonusBursts();
-  updateScratchCats();
+  if (BUILD_STEP >= 4) updateScratchCats();
   if (mouseIsPressed && mouseY > 90) addScratchAt(mouseX, mouseY, pmouseX, pmouseY);
+  if (BUILD_STEP >= 6) drawPeekCat(width / 2, height - 8, 1.08, CAT_COLORS[selectedColor], 'open');
   drawButton(buttons.clear, '#fff2d7', '#403b33');
 }
 
@@ -555,11 +556,17 @@ function updateScratchCats() {
 function drawBubbleBay() {
   drawBubbleBack();
   drawTopBar('Bubble Bay', CAT_COLORS[selectedColor].name);
-  drawScoreBadge();
-  updateSwimmers(true);
-  updateBubbles(true);
-  updateBubbleCats();
-  updateBursts();
+  if (BUILD_STEP >= 4) drawScoreBadge();
+  if (!modalOpen) {
+    if (BUILD_STEP >= 3) updateSwimmers(true);
+    if (BUILD_STEP >= 3) updateBubbles(true);
+    if (BUILD_STEP >= 4) updateBubbleCats();
+  } else {
+    if (BUILD_STEP >= 3) updateSwimmers(false);
+    if (BUILD_STEP >= 3) updateBubbles(false);
+  }
+  if (BUILD_STEP >= 4) updateBursts();
+  if (BUILD_STEP >= 6) drawPeekCat(width / 2, height - 8, 1.08, CAT_COLORS[selectedColor], 'focus');
 }
 
 function drawBubbleBack() {
@@ -768,22 +775,61 @@ function drawButton(btn, bg, fg) {
   pop();
 }
 
+function drawModal() {
+  push();
+  noStroke();
+  fill(45, 52, 58, 70);
+  rect(0, 0, width, height);
+  rectMode(CENTER);
+  fill(255, 252, 246, 246);
+  rect(width / 2, height / 2, min(430, width - 48), 238, 18);
+  stroke(222, 211, 196);
+  strokeWeight(2);
+  noFill();
+  rect(width / 2, height / 2, min(430, width - 48), 238, 18);
+  noStroke();
+  fill(45, 42, 38);
+  textStyle(BOLD);
+  textSize(28);
+  text('Congratulations', width / 2, height / 2 - 58);
+  textStyle(NORMAL);
+  textSize(16);
+  fill(101, 88, 74);
+  text(modalText, width / 2, height / 2 - 18);
+  if (BUILD_STEP >= 7) {
+    drawButton(buttons.modalHome, '#fff2d7', '#403b33');
+    drawButton(buttons.modalClose, '#e7f3f5', '#403b33');
+  }
+  pop();
+}
+
 function mousePressed() {
   beginAudio();
   lastKickPoint = { x: mouseX, y: mouseY };
-  if (gameState === 'home' && USE_MENU) {
-    if (USE_SCRATCH && overButton(buttons.scratch)) { gameState = 'scratch'; return false; }
-    if (USE_BUBBLE && overButton(buttons.bubble)) { gameState = 'bubble'; return false; }
-    grabHomeBall(mouseX, mouseY);
+  if (modalOpen) {
+    if (BUILD_STEP >= 7 && overButton(buttons.modalHome)) { gameState = 'home'; modalOpen = false; return false; }
+    if (BUILD_STEP >= 7 && overButton(buttons.modalClose)) { modalOpen = false; return false; }
+    return false;
   }
-  if (gameState === 'home' && !USE_MENU) grabHomeBall(mouseX, mouseY);
+  if (gameState === 'home' && USE_MENU) {
+    if (BUILD_STEP >= 2 && USE_SCRATCH && overButton(buttons.scratch)) { gameState = 'scratch'; return false; }
+    if (BUILD_STEP >= 2 && USE_BUBBLE && overButton(buttons.bubble)) { gameState = 'bubble'; return false; }
+    if (BUILD_STEP >= 4) grabHomeBall(mouseX, mouseY);
+  }
+  if (BUILD_STEP >= 4 && gameState === 'home' && !USE_MENU) grabHomeBall(mouseX, mouseY);
   if ((gameState === 'scratch' || gameState === 'bubble') && overButton(buttons.home)) { gameState = 'home'; return false; }
   if (gameState === 'scratch') {
     if (overButton(buttons.clear)) { scratches = []; debris = []; curlBits = []; lastScratch = null; return false; }
+    if (BUILD_STEP >= 7 && overButton(buttons.prev)) { selectedColor = (selectedColor + CAT_COLORS.length - 1) % CAT_COLORS.length; return false; }
+    if (BUILD_STEP >= 7 && overButton(buttons.next)) { selectedColor = (selectedColor + 1) % CAT_COLORS.length; return false; }
     if (mouseY > 92 && useScratchBonus(mouseX, mouseY)) return false;
     if (mouseY > 92) addScratchAt(mouseX, mouseY, mouseX, mouseY - 10);
   }
   if (gameState === 'bubble') {
+    if (BUILD_STEP >= 7 && overButton(buttons.prev)) { selectedColor = (selectedColor + CAT_COLORS.length - 1) % CAT_COLORS.length; return false; }
+    if (BUILD_STEP >= 7 && overButton(buttons.next)) { selectedColor = (selectedColor + 1) % CAT_COLORS.length; return false; }
+  }
+  if (BUILD_STEP >= 4 && gameState === 'bubble') {
     for (const s of swimmers) {
       if (s.contains(mouseX, mouseY)) {
         if (popSound) popSound.play(0, 1, 0.22);
@@ -791,6 +837,11 @@ function mousePressed() {
         s.vanish = 24;
         score++;
         bursts.push(new PopBurst(s.x, s.y, s.c));
+        if (BUILD_STEP >= 6 && score >= nextRewardScore) {
+          modalText = random(PRAISE);
+          modalOpen = true;
+          nextRewardScore += 10;
+        }
         break;
       }
     }
@@ -799,11 +850,11 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-  if (gameState === 'home') {
+  if (BUILD_STEP >= 4 && gameState === 'home') {
     dragHomeBall(mouseX, mouseY);
     lastKickPoint = { x: mouseX, y: mouseY };
   }
-  if (gameState === 'scratch') {
+  if (!modalOpen && gameState === 'scratch') {
     if (!useScratchBonus(mouseX, mouseY)) addScratchAt(mouseX, mouseY, pmouseX, pmouseY);
   }
   return false;
@@ -813,6 +864,15 @@ function mouseReleased() {
   lastScratch = null;
   lastKickPoint = null;
   releaseHomeBall();
+  return false;
+}
+
+function keyPressed() {
+  beginAudio();
+  if (BUILD_STEP >= 7 && (gameState === 'scratch' || gameState === 'bubble')) {
+    if (keyCode === LEFT_ARROW) selectedColor = (selectedColor + CAT_COLORS.length - 1) % CAT_COLORS.length;
+    if (keyCode === RIGHT_ARROW) selectedColor = (selectedColor + 1) % CAT_COLORS.length;
+  }
   return false;
 }
 
@@ -979,7 +1039,146 @@ function drawQuietThemeBits(scene) {
   pop();
 }
 
+function drawIdleBlinkCat(x, y, sc, c) {
+  push();
+  translate(x, y);
+  scale(sc);
+  const blink = (frameCount % 190) > 160;
+  const body = color(c);
+  noStroke();
+  fill(45, 38, 32, 25);
+  ellipse(0, 48, 76, 15);
+  fill(body);
+  rect(-28, 12, 50, 34, 8);
+  rect(12, 2, 27, 28, 5);
+  triangle(15, 4, 21, -13, 28, 4);
+  triangle(31, 4, 40, -9, 39, 10);
+  rect(-19, 42, 6, 18, 3);
+  rect(11, 42, 6, 18, 3);
+  stroke(body);
+  strokeWeight(5);
+  noFill();
+  arc(-29, 20, 34, 38, 2.8, 5.4);
+  stroke(40);
+  strokeWeight(2);
+  if (blink) {
+    line(19, 11, 25, 11);
+    line(31, 11, 37, 11);
+  } else {
+    fill(35);
+    noStroke();
+    rect(20, 9, 3, 4);
+    rect(33, 9, 3, 4);
+  }
+  stroke(65, 55, 48, 140);
+  strokeWeight(1);
+  line(18, 18, 5, 15);
+  line(18, 22, 5, 24);
+  line(38, 18, 50, 15);
+  line(38, 22, 50, 24);
+  pop();
+}
+
 // # Cat Head Follow
+function drawPeekCat(x, y, sc, catColor, mood) {
+  push();
+  translate(x, y);
+  scale(sc);
+  const fur = color(catColor.fur);
+  const dark = color(catColor.line);
+  noStroke();
+  fill(45, 38, 32, 26);
+  ellipse(0, 28, 190, 18);
+  fill(fur);
+  if (mood === 'focus') {
+    beginShape();
+    vertex(-78, 18);
+    vertex(-78, -39);
+    bezierVertex(-88, -68, -91, -96, -68, -79);
+    bezierVertex(-38, -58, -24, -56, -5, -61);
+    bezierVertex(16, -57, 39, -63, 53, -102);
+    bezierVertex(65, -119, 75, -66, 76, -28);
+    vertex(76, 18);
+    endShape(CLOSE);
+    triangle(-78, -21, -111, -10, -78, 0);
+    triangle(76, -23, 112, -12, 76, -3);
+  } else {
+    rect(-78, -58, 156, 82, 18);
+    triangle(-70, -52, -55, -112, -22, -54);
+    triangle(28, -54, 64, -112, 75, -50);
+    ellipse(-108, 12, 48, 24);
+    ellipse(108, 12, 48, 24);
+  }
+  stroke(dark);
+  strokeWeight(2);
+  if (mood === 'focus') {
+    line(-78, -1, -132, -12);
+    line(-77, 7, -132, 6);
+    line(-77, 15, -126, 25);
+    line(78, -1, 132, -12);
+    line(77, 7, 132, 6);
+    line(77, 15, 126, 25);
+  } else {
+    line(-80, -2, -122, -12);
+    line(-80, 7, -124, 7);
+    line(-80, 16, -120, 25);
+    line(80, -2, 122, -12);
+    line(80, 7, 124, 7);
+    line(80, 16, 120, 25);
+  }
+  noStroke();
+  const left = mood === 'focus' ? { x: -33, y: -19 } : { x: -34, y: -23 };
+  const right = mood === 'focus' ? { x: 33, y: -19 } : { x: 34, y: -23 };
+  const blink = frameCount % 220 > 207;
+  fill('#ffffff');
+  if (mood === 'focus') {
+    drawCatEyeWhite(left.x, left.y, 52, 32, -0.26);
+    drawCatEyeWhite(right.x, right.y, 52, 32, 0.26);
+  } else {
+    ellipse(left.x, left.y, 48, 54);
+    ellipse(right.x, right.y, 48, 54);
+  }
+  fill(30);
+  const maxX = mood === 'focus' ? 6 : 8;
+  const maxY = mood === 'focus' ? 3 : 7;
+  const pupilH = mood === 'focus' ? 10 : 27;
+  const lx = BUILD_STEP >= 7 ? constrain((mouseX - (x + left.x * sc)) * 0.018, -maxX, maxX) : 0;
+  const ly = BUILD_STEP >= 7 ? constrain((mouseY - (y + left.y * sc)) * 0.014, -maxY, maxY) : 0;
+  const rx = BUILD_STEP >= 7 ? constrain((mouseX - (x + right.x * sc)) * 0.018, -maxX, maxX) : 0;
+  const ry = BUILD_STEP >= 7 ? constrain((mouseY - (y + right.y * sc)) * 0.014, -maxY, maxY) : 0;
+  if (blink) {
+    stroke(30);
+    strokeWeight(3);
+    line(left.x - 18, left.y - 1, left.x + 18, left.y - 1);
+    line(right.x - 18, right.y - 1, right.x + 18, right.y - 1);
+    noStroke();
+  } else if (mood === 'focus') {
+    ellipse(left.x + lx, left.y + ly - 2, 7, pupilH);
+    ellipse(right.x + rx, right.y + ry - 2, 7, pupilH);
+  } else {
+    rect(left.x + lx - 2.5, left.y + ly - pupilH / 2, 5, pupilH, 3);
+    rect(right.x + rx - 2.5, right.y + ry - pupilH / 2, 5, pupilH, 3);
+  }
+  if (mood !== 'focus') {
+    fill(catColor.pad);
+    triangle(-6, 5, 6, 5, 0, 11);
+  }
+  pop();
+}
+
+function drawCatEyeWhite(cx, cy, w, h, tilt) {
+  push();
+  translate(cx, cy);
+  rotate(tilt);
+  beginShape();
+  vertex(-w * 0.5, -h * 0.06);
+  bezierVertex(-w * 0.28, -h * 0.36, w * 0.16, -h * 0.42, w * 0.5, -h * 0.23);
+  bezierVertex(w * 0.44, h * 0.25, w * 0.03, h * 0.42, -w * 0.35, h * 0.28);
+  bezierVertex(-w * 0.48, h * 0.18, -w * 0.53, h * 0.04, -w * 0.5, -h * 0.06);
+  endShape(CLOSE);
+  pop();
+}
+
 function drawPawCursor(x, y, c, pressed) {
   push();
   translate(x, y);
