@@ -92,6 +92,18 @@ Each team member owns one mechanic from start to finish. Functions and classes k
 
 ## External References
 
+### Page Switching Tutorial
+
+https://www.youtube.com/watch?v=IWyPwbt5ZrA
+
+This video influenced the page-switching logic. In PAWPLAY, the idea is adapted into a p5.js `gameState` variable, so clicking the mode cards changes between `home`, `scratch`, and `bubble` inside one canvas.
+
+### MDN HTML Dialog Element
+
+https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog
+
+This reference influenced the popup interaction pattern. The project uses the same logic idea: a popup appears above the scene, blocks background interaction, and can be closed with buttons. PAWPLAY draws this modal directly in p5.js instead of using the HTML `<dialog>` element.
+
 ### p5.js Aim Example
 
 https://p5js.org/examples/angles-and-motion-aim/
