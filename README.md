@@ -6,7 +6,7 @@
 
 PAWPLAY is a small p5.js play space about cats, scratching, yarn, and soft target chasing. The project has one home screen and two modes: **Scratch Studio** and **Bubble Bay**.
 
-![PAWPLAY welcome start page](assets/photo/pawplay_welcome_start_a4.png)
+![PAWPLAY home screen](assets/photo/home_screen.png)
 
 ---
 
