@@ -4,6 +4,9 @@
 // # Function: complete all controls and modal buttons.
 // # Color: consistent cream panels and dark text.
 // # PawPlay Modes
+// # AI acknowledgement: We used ChatGPT to organise code structure, debug p5.js state flow, and refine README wording
+// # The team reviewed, tested, and adjusted all AI-supported work to match the project goals
+// # The AI-supported code works by keeping p5 setup and draw here, then combining the three mechanic scripts
 const MECHANIC = 'full';
 const BUILD_STEP = 7;
 const USE_MENU = true;
