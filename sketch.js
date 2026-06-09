@@ -603,6 +603,7 @@ function updateBubbles(active) {
   }
 }
 
+// # External reference: p5.js noise() docs shaped the smooth drifting motion: https://p5js.org/reference/p5/noise/
 class SeaAnimal {
   constructor(i) {
     this.i = i;
@@ -958,6 +959,7 @@ function drawCat(x, y, sc, c, dir, pose, marks = []) {
   scale(dir * sc, sc);
   const body = color(c);
   const dark = lerpColor(body, color(32), 0.5);
+  // # AI-assisted: ChatGPT helped organize this walking-cat leg animation; four legs move with frameCount sine timing.
   const step = pose === 'run' ? sin(frameCount * 0.16) * 5 : sin(frameCount * 0.1) * 3;
   const px = 5.2;
   noStroke();
@@ -1080,6 +1082,7 @@ function drawIdleBlinkCat(x, y, sc, c) {
 }
 
 // # Cat Head Follow
+// # External reference: p5.js aim example influenced the mouse-follow eye direction: https://p5js.org/examples/angles-and-motion-aim/
 function drawPeekCat(x, y, sc, catColor, mood) {
   push();
   translate(x, y);
